@@ -71,17 +71,7 @@ pip install tqdm
 1. **EIT-1M**: 1百万EEG-图像-文本对
 2. **ChineseEEG**: 128通道中文语料EEG数据
 3. **Thought2Text**: 图像对齐的EEG-文本条目
-
-### 数据格式
-
-```
-data/
-├── raw/
-│   ├── EIT-1M/
-│   ├── ChineseEEG/  
-│   └── Thought2Text/
-└── processed/
-```
+4. **TUAB**: 通过脑电识别受试者观看的图像或阅读的文本语义
 
 ### 数据预处理
 
