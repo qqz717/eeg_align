@@ -243,15 +243,4 @@ EEG-WaveletVQ-Framework/
 
 本项目遵循 MIT 许可证。
 
-## 引用
 
-如果使用本代码，请引用相关论文：
-
-```bibtex
-@article{eeg_wavelet_vq_2024,
-  title={A Unified EEG Representation Framework via Wavelet Neural Quantization and Dynamic Semantic Alignment},
-  author={[Author Names]},
-  journal={[Journal Name]},
-  year={2024}
-}
-```
