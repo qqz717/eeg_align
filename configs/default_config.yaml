@@ -1,0 +1,162 @@
+# EEG WaveletVQ框架默认配置
+
+# 模型配置
+model:
+  n_channels: 64
+  d_model: 128
+  sample_rate: 500
+  
+  # 小波配置
+  wavelet: 'db4'
+  wavelet_levels: 5
+  num_codebook_vectors: 512
+  
+  # 跨模态对齐配置
+  temperature: 0.07
+  mask_prob: 0.15
+  
+  # 损失权重 (论文公式7)
+  alpha: 1.0      # MSE权重
+  beta: 1.0       # 相关性权重
+  lambda1: 1.0    # 近似系数权重
+  lambda2: 1.0    # 细节系数权重
+  gamma: 1.0      # 对比学习权重
+  delta: 0.5      # 掩码重建权重
+
+# 训练配置 (按照论文训练细节)
+training:
+  # 基本设置
+  num_epochs: 100
+  batch_size: 16      # 根据GPU内存调整
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  
+  # 优化器设置
+  warmup_steps: 1000
+  max_grad_norm: 1.0
+  
+  # 调度器
+  scheduler_type: 'cosine_with_warmup'
+  
+  # 早停
+  early_stopping_patience: 10
+  
+  # 随机种子 (论文中使用的三个种子)
+  random_seeds: [42, 2024, 3407]
+  
+  # 动态填充 (论文: 最大20秒)
+  max_sequence_length: 10000  # 20s * 500Hz
+  
+  # GPU设置
+  device: 'cuda'
+  use_mixed_precision: true
+  num_workers: 8
+
+# 数据集配置 (论文中的三个数据集)
+datasets:
+  eit1m:
+    data_dir: 'data/raw/EIT-1M'
+    params:
+      sample_rate: 500
+      max_length: 10000
+      normalize: true
+      filter_range: [0.5, 70.0]
+      notch_freq: 50.0
+  
+  chinese_eeg:
+    data_dir: 'data/raw/ChineseEEG'
+    params:
+      sample_rate: 500
+      max_length: 10000
+      normalize: true
+      filter_range: [0.5, 70.0]
+      notch_freq: 50.0
+  
+  thought2text:
+    data_dir: 'data/raw/Thought2Text'
+    params:
+      sample_rate: 500
+      max_length: 10000
+      normalize: true
+      filter_range: [0.5, 70.0]
+      notch_freq: 50.0
+
+# 评估配置
+evaluation:
+  # 分类指标
+  classification_metrics: ['accuracy', 'f1_score', 'precision', 'recall']
+  
+  # 文本生成指标 (论文中使用)
+  text_generation_metrics: ['bleu4', 'rouge1', 'rouge2', 'rougeL']
+  
+  # 跨模态对齐指标
+  recall_k_values: [1, 5, 10]
+  
+  # 评估频率
+  eval_every_n_epochs: 1
+  save_every_n_epochs: 10
+
+# 日志和保存配置
+logging:
+  log_dir: 'experiments/logs'
+  checkpoint_dir: 'experiments/checkpoints'
+  
+  # Wandb配置 (可选)
+  use_wandb: false
+  wandb_project: 'eeg-wavelet-vq'
+  wandb_entity: ''
+  
+  # 日志级别
+  log_level: 'INFO'
+
+# 文本生成配置
+text_generation:
+  # Nucleus采样 (论文中使用)
+  use_nucleus_sampling: true
+  top_p: 0.9
+  max_length: 50
+  temperature: 1.0
+
+# 数据预处理配置
+preprocessing:
+  # EEG预处理管道
+  bandpass_filter: [0.5, 70.0]
+  notch_filter: [48.0, 52.0]  # 48-52 Hz (论文中提到)
+  
+  # 重采样到500Hz
+  target_sample_rate: 500
+  
+  # 分段 (2秒片段)
+  segment_length: 2.0  # 秒
+  
+  # 坏通道检测
+  bad_channel_detection:
+    variance_threshold: 3.0  # mean + 3*std
+    interpolation_method: 'spherical'
+  
+  # 坏片段检测
+  bad_segment_detection:
+    amplitude_threshold: [-100, 100]  # μV (论文中提到)
+    
+  # ICA配置 (论文中使用)
+  ica:
+    method: 'infomax'
+    n_components: 30
+    max_iter: 800
+  
+  # 重参考
+  reference_method: 'average'
+
+# 硬件配置 (基于论文)
+hardware:
+  # GPU配置 (论文: 4x RTX 6000 Ada, 48GB VRAM)
+  gpus: [0, 1, 2, 3]
+  gpu_memory: '48GB'
+  
+  # PyTorch版本 (论文中使用)
+  pytorch_version: '2.3.0'
+  cuda_version: '12.2'
+  
+  # 内存优化
+  use_gradient_checkpointing: false
+  use_cpu_offload: false
